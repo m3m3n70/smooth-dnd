@@ -22,6 +22,7 @@ export type TopLeft = { top: number; left: number };
 
 export type Dictionary = { [key: string]: any };
 export type Orientation = 'horizontal' | 'vertical';
+export type OverScroll = 'none' | 'x' | 'y' | 'both';
 export type ElementX = HTMLElement & Dictionary;
 
 export interface ScrolableInfo {

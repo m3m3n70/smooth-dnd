@@ -8,6 +8,7 @@ export const defaultOptions: ContainerOptions = {
 	animationDuration: 250,
 	autoScrollEnabled: true,
 	disableScrollOverlapDetection: false,
+	overScroll: 'none',
 	shouldAcceptDrop: undefined,
 	shouldAnimateDrop: undefined,
 };

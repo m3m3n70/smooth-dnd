@@ -1,4 +1,4 @@
-import { DraggableInfo, IContainer, Axis, Rect, ScrollAxis, Position } from "./interfaces";
+import { DraggableInfo, IContainer, Axis, Rect, ScrollAxis, Position, OverScroll } from "./interfaces";
 import { getScrollingAxis, hasClass, getVisibleRect } from "./utils";
 import { preventAutoScrollClass } from "./constants";
 
@@ -31,12 +31,23 @@ interface ScrollerAnimator {
 	scrollerElement: HTMLElement;
 	getRect: () => Rect;
 	cachedRect?: Rect;
+	overScroll: OverScroll;
 }
 
-function getScrollParams(position: Position, axis: Axis, rect: Rect): ScrollParams | null {
+function allowOverscroll(axis: Axis, overScroll: OverScroll) {
+	return axis === overScroll || overScroll === 'both';
+}
+
+function getScrollParams(position: Position, axis: Axis, rect: Rect, overScroll: OverScroll): ScrollParams | null {
 	const { left, right, top, bottom } = rect;
 	const { x, y } = position;
-	if (x < left || x > right || y < top || y > bottom) {
+	if (!allowOverscroll(axis, overScroll)) {
+		if (x < left || x > right || y < top || y > bottom) {
+			return null;
+		}
+	} else if (axis == 'x' && (y < top || y > bottom)) {
+		return null;
+	} else if (axis == 'y' && (x < left || x > right)) {
 		return null;
 	}
 
@@ -176,6 +187,7 @@ function getScrollerAnimator(container: IContainer): ScrollerAnimator[] {
 				axisAnimations,
 				getRect: rectangleGetter(current),
 				scrollerElement: current,
+				overScroll: container.getOptions().overScroll!
 			})
 		}
 		current = current.parentElement;
@@ -185,15 +197,15 @@ function getScrollerAnimator(container: IContainer): ScrollerAnimator[] {
 
 function setScrollParams(animatorInfos: ScrollerAnimator[], position: Position) {
 	animatorInfos.forEach((animator: ScrollerAnimator) => {
-		const { axisAnimations, getRect } = animator;
+		const { axisAnimations, getRect, overScroll } = animator;
 		const rect = getRect();
 		if (axisAnimations.x) {
-			axisAnimations.x.scrollParams = getScrollParams(position, 'x', rect)
+			axisAnimations.x.scrollParams = getScrollParams(position, 'x', rect, overScroll)
 			animator.cachedRect = rect;
 		}
 
 		if (axisAnimations.y) {
-			axisAnimations.y.scrollParams = getScrollParams(position, 'y', rect)
+			axisAnimations.y.scrollParams = getScrollParams(position, 'y', rect, overScroll)
 			animator.cachedRect = rect;
 		}
 	});

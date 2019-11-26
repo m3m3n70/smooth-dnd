@@ -1,3 +1,5 @@
+import { OverScroll } from "./interfaces";
+
 export interface SmoothDnD {
 	dispose: () => void;
 	setOptions: (options: ContainerOptions, merge?: boolean) => void;	
@@ -47,6 +49,7 @@ export interface ContainerOptions {
 	animationDuration?: number;
 	autoScrollEnabled?: boolean;
 	disableScrollOverlapDetection?: boolean;
+	overScroll?: OverScroll;
 	lockAxis?: 'x' | 'y';
 	dragClass?: string;
 	dropClass?: string;
